@@ -1,3 +1,8 @@
+import * as building from "building";
+import * as roleBuilder from "roles/builder";
+import * as roleHarvester from "roles/harvester";
+import * as roleUpgrader from "roles/upgrader";
+import * as tower from "tower";
 import { ErrorMapper } from "utils/ErrorMapper";
 
 declare global {
@@ -17,8 +22,6 @@ declare global {
 
   interface CreepMemory {
     role: string;
-    room: string;
-    working: boolean;
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
@@ -34,10 +37,32 @@ declare global {
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
+  building.run(Game.spawns.Spawn1);
+
+  var towers = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
+    filter: (structure): structure is StructureTower => (structure instanceof StructureTower)
+  });
+  towers.forEach(tower.run);
+
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
+    }
+    else {
+      var creep = Game.creeps[name];
+
+      if (creep.memory.role === "harvester") {
+        roleHarvester.run(creep);
+      }
+
+      if (creep.memory.role == "upgrader") {
+          roleUpgrader.run(creep);
+      }
+
+      if (creep.memory.role == "builder") {
+          roleBuilder.run(creep);
+      }
     }
   }
 });
