@@ -40,7 +40,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   building.run(Game.spawns.Spawn1);
 
   var towers = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-    filter: (structure): structure is StructureTower => (structure instanceof StructureTower)
+    filter: (structure): structure is StructureTower => structure instanceof StructureTower
   });
   towers.forEach(tower.run);
 
@@ -48,8 +48,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
-    }
-    else {
+    } else {
       var creep = Game.creeps[name];
 
       if (creep.memory.role === "harvester") {
@@ -57,11 +56,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
 
       if (creep.memory.role == "upgrader") {
-          roleUpgrader.run(creep);
+        roleUpgrader.run(creep);
       }
 
       if (creep.memory.role == "builder") {
-          roleBuilder.run(creep);
+        roleBuilder.run(creep);
       }
     }
   }
