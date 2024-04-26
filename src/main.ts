@@ -37,19 +37,32 @@ declare global {
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
-  building.run(Game.spawns.Spawn1);
+  var spawnRooms: Room[] = [];
 
-  var towers = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-    filter: (structure): structure is StructureTower => structure instanceof StructureTower
+  for (var spawnName in Game.spawns) {
+    var spawn = Game.spawns[spawnName];
+    var spawnRoom = spawn.room;
+
+    building.run(spawn);
+
+    if (!_.any(spawnRooms, { name: spawnRoom.name })) {
+      spawnRooms.concat(spawnRoom);
+    }
+  }
+
+  spawnRooms.forEach((spawnRoom) => {
+    var towers = spawnRoom.find(FIND_MY_STRUCTURES, {
+      filter: (structure): structure is StructureTower => structure instanceof StructureTower
+    });
+    towers.forEach(tower.run);
   });
-  towers.forEach(tower.run);
 
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
+  for (const creepName in Memory.creeps) {
+    // Automatically delete memory of missing creeps
+    if (!(creepName in Game.creeps)) {
+      delete Memory.creeps[creepName];
     } else {
-      var creep = Game.creeps[name];
+      var creep = Game.creeps[creepName];
 
       if (creep.memory.role === "harvester") {
         roleHarvester.run(creep);
