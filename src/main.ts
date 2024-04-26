@@ -1,7 +1,5 @@
 import * as building from "building";
-import * as roleBuilder from "roles/builder";
-import * as roleHarvester from "roles/harvester";
-import * as roleUpgrader from "roles/upgrader";
+import * as roles from "roles";
 import * as tower from "tower";
 import { ErrorMapper } from "utils/ErrorMapper";
 
@@ -21,7 +19,7 @@ declare global {
   }
 
   interface CreepMemory {
-    role: string;
+    role: keyof typeof import("roles");
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
@@ -64,17 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     } else {
       var creep = Game.creeps[creepName];
 
-      if (creep.memory.role === "harvester") {
-        roleHarvester.run(creep);
-      }
-
-      if (creep.memory.role == "upgrader") {
-        roleUpgrader.run(creep);
-      }
-
-      if (creep.memory.role == "builder") {
-        roleBuilder.run(creep);
-      }
+      roles[creep.memory.role].run(creep);
     }
   }
 });
